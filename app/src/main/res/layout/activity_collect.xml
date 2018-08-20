@@ -6,4 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.sapicons.deepak.tbd.CollectActivity">
 
+    <FrameLayout
+        android:id="@+id/activity_collect_content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
+    </FrameLayout>
 </android.support.constraint.ConstraintLayout>

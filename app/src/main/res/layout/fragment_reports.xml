@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto">
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true">
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:id="@+id/frag_reports_customer_accounts_btn"
+            android:layout_marginRight="32dp"
+            android:layout_marginLeft="32dp"
+            fancy:fb_text="Customer Accounts"
+            fancy:fb_radius="20dp"
+            fancy:fb_focusColor="#5577bd"
+            fancy:fb_defaultColor="#d50000"/>
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:id="@+id/frag_reports_balance_report_btn"
+            fancy:fb_text="Balance Report"
+            fancy:fb_radius="20dp"
+            fancy:fb_focusColor="#5577bd"
+            fancy:fb_defaultColor="#2e7d32"/>
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:id="@+id/frag_reports_profit_statement_btn"
+            fancy:fb_text="Profit Statement"
+            fancy:fb_radius="20dp"
+            fancy:fb_focusColor="#5577bd"
+            fancy:fb_defaultColor="#2962ff"/>
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:id="@+id/frag_reports_daily_report_btn"
+            fancy:fb_text="Today's Report"
+            fancy:fb_radius="20dp"
+            fancy:fb_focusColor="#5577bd"
+            fancy:fb_defaultColor="#c56000"/>
+
+
+
+    </LinearLayout>
+
+</RelativeLayout>

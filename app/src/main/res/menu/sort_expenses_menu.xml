@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+
+    <item
+        android:id="@+id/action_sort_by_salary"
+        android:orderInCategory="1"
+        android:title="Sort by Salary"/>
+
+    <item
+        android:id="@+id/action_sort_by_investment"
+        android:orderInCategory="2"
+        android:title="Sort by Investment"/>
+    <item
+        android:id="@+id/action_sort_by_travel"
+        android:orderInCategory="3"
+        android:title="Sort by Travel"/>
+
 
 </menu>
