@@ -293,7 +293,7 @@ public class ClosedAccountsDisplayFragment extends ListFragment implements Searc
         for (AccountItem value : list) {
 
             long endDate = Long.parseLong(value.getEndDate());
-            Log.d("DATE RANGE","daterange: "+endDate);
+            Log.d("DATE RANGE","daterangea: "+endDate);
 
             //remove accounts with closed date other than the range
             if(endDate<endTime || endDate >currTime )
