@@ -6,11 +6,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.sapicons.deepak.tbd.Fragments.AccountsDisplayFragment;
 import com.sapicons.deepak.tbd.Fragments.CustomerDisplayFragment;
-import com.sapicons.deepak.tbd.Fragments.CustomerFragment;
-import com.sapicons.deepak.tbd.Fragments.DashboardFragment;
-import com.sapicons.deepak.tbd.Objects.CustomerItem;
 
 public class DisplayCustomerListActivity extends AppCompatActivity {
 

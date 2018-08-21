@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -131,10 +132,13 @@ public class ClubAccountsDisplayFragment extends ListFragment implements SearchV
                             new_list.add(newItem);
 
                         }
+
                         list = new_list;
                         adapter = new ClubbedAccountsAdapter(mContext,R.layout.item_clubbed_accounts,new_list,isCollect);
                         adapter.notifyDataSetChanged();
                         listView.setAdapter(adapter);
+
+
                         progressDialog.dismiss();
 
                     }
@@ -197,4 +201,9 @@ public class ClubAccountsDisplayFragment extends ListFragment implements SearchV
         listView.setAdapter(adapter);
         //listenToChanges();
     }
+
+
+
+
+
 }

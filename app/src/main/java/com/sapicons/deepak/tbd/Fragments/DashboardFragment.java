@@ -16,6 +16,7 @@ import com.sapicons.deepak.tbd.AddExpenseActivity;
 import com.sapicons.deepak.tbd.CollectActivity;
 import com.sapicons.deepak.tbd.DisplayCustomerListActivity;
 import com.sapicons.deepak.tbd.R;
+import com.sapicons.deepak.tbd.TodaysDueActivity;
 
 import at.markushi.ui.CircleButton;
 import mehdi.sakout.fancybuttons.FancyButton;
@@ -47,7 +48,8 @@ public class DashboardFragment extends Fragment {
        FancyButton addCustomerBtn = view.findViewById(R.id.frag_dash_add_customer_btn),
                addAccountBtn = view.findViewById(R.id.frag_dash_add_account_btn),
                collectBtn = view.findViewById(R.id.frag_dash_collect_btn),
-               addExpenseBtn = view.findViewById(R.id.frag_dash_add_expense_btn);
+               addExpenseBtn = view.findViewById(R.id.frag_dash_add_expense_btn),
+                dueTodayBtn = view.findViewById(R.id.frag_dash_due_today_btn);
 
        addCustomerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +78,14 @@ public class DashboardFragment extends Fragment {
            @Override
            public void onClick(View view) {
                startActivity(new Intent(getActivity(), AddExpenseActivity.class));
+           }
+       });
+
+       dueTodayBtn.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+
+               startActivity(new Intent(getActivity(),TodaysDueActivity.class));
            }
        });
 

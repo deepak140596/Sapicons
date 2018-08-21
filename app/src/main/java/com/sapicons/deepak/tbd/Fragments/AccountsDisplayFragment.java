@@ -3,10 +3,13 @@ package com.sapicons.deepak.tbd.Fragments;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,12 +18,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -34,7 +44,10 @@ import com.sapicons.deepak.tbd.Objects.AccountItem;
 import com.sapicons.deepak.tbd.Objects.CustomerItem;
 import com.sapicons.deepak.tbd.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -100,19 +113,112 @@ public class AccountsDisplayFragment extends ListFragment implements SearchView.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                AccountItem item = (AccountItem)adapterView.getItemAtPosition(i);
+                /*AccountItem item = (AccountItem)adapterView.getItemAtPosition(i);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("selected_account",item);
 
 
                 Intent intent = new Intent(getActivity(),AccountsDetailsActivity.class );
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivity(intent);*/
 
-
-                onDetach();
+                //AccountItem item = (AccountItem) adapterView.getItemAtPosition(i);
+                //setUpPopupWindow(item);
             }
         });
+
+
+    }
+
+    private void setUpPopupWindow(final AccountItem accountItem){
+
+
+        AlertDialog.Builder alertDialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        View customView=inflater.inflate(R.layout.custom_collect_popup,null);
+        final EditText amtEt = customView.findViewById(R.id.custom_collect_amt_et);
+
+        alertDialog.setTitle("Collect Amount")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                }).setPositiveButton("Collect", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //Toast.makeText(mContext, "Amt collected!", Toast.LENGTH_SHORT).show();
+                float actualAmt = Float.parseFloat(accountItem.getDueAmt());
+                String eA = amtEt.getText().toString();
+                if(!eA.isEmpty()) {
+                    float enteredAmt = Float.parseFloat(eA);
+                    if (enteredAmt > actualAmt) {
+                        Toast.makeText(mContext, "Collected Amount is more than Due.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        progressDialog.show();
+                        deductAmountFromAccount(accountItem, amtEt.getText().toString());
+                    }
+                }
+
+
+            }
+        });
+
+        alertDialog.setView(customView)
+                .create().show();
+
+    }
+
+    private void deductAmountFromAccount(final AccountItem accountItem, String amount){
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
+        String newAmt = (Float.parseFloat(accountItem.getDueAmt()) - Float.parseFloat(amount))+"";
+        //accountItem.setDueAmt(newAmt);
+
+
+
+        //update the new info to db
+        DocumentReference accRef = db.collection("users").document(user.getEmail())
+                .collection("accounts").document(accountItem.getAccountNumber());
+
+        accRef.update("dueAmt",newAmt)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(mContext, "Amount Updated!", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("TAG","error updating amt: "+e);
+            }
+        });
+
+        //close account id dueAmt = zero
+        if(Float.parseFloat(newAmt)  < 1.0){
+            Toast.makeText(mContext, "Account is Closed!", Toast.LENGTH_SHORT).show();
+            accountItem.setAccountStatus("closed");
+
+            accRef.update("accountStatus","closed")
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //Toast.makeText(context, "Amount Updated!", Toast.LENGTH_SHORT).show();
+                            //progressDialog.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("TAG","error updating account status: "+e);
+                }
+            });
+        }
+
 
 
     }
@@ -140,7 +246,8 @@ public class AccountsDisplayFragment extends ListFragment implements SearchView.
                         for (QueryDocumentSnapshot doc : value) {
                             AccountItem newItem = doc.toObject(AccountItem.class);
                             Log.d(TAG,"Name: "+newItem.getFirstName());
-                            new_list.add(newItem);
+                            if(filterAccounts(newItem))
+                                new_list.add(newItem);
 
                         }
                         list = new_list;
@@ -209,5 +316,63 @@ public class AccountsDisplayFragment extends ListFragment implements SearchView.
         adapter.notifyDataSetChanged();
         listView.setAdapter(adapter);
         //listenToChanges();
+    }
+
+    boolean filterAccounts(AccountItem item){
+
+        Calendar calendar = Calendar.getInstance();
+
+        //for M account
+        if(item.getAccoutType().contains("M")){
+
+            //get this month and this month's date
+            int todaysDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+            int monthOfYear = calendar.get(Calendar.MONTH);
+            Log.d("CALENDAR","todaysDate: "+todaysDayOfMonth+ " monthOfYear: "+monthOfYear);
+
+            //get startdate of the account and create a new calendar instance
+            long startDate = Long.parseLong(item.getStartDate());
+            Calendar newCal = Calendar.getInstance();
+            newCal.setTimeInMillis(startDate);
+
+
+            //get the start month of the year and start day of the month
+            int startDay = newCal.get(Calendar.DAY_OF_MONTH);
+            int startMonth = newCal.get(Calendar.MONTH);
+            Log.d("CALENDAR","startDate: "+startDay+" startMonth: "+startMonth);
+
+            //if the start day was 31st , make it 30th
+            if(startDay == 31)
+                startDay = 30;
+
+            // if started on the same day of the previous months and account is open return true
+            if((startDay - todaysDayOfMonth) == 0 &&
+                    item.getAccountStatus().equalsIgnoreCase("open") &&
+                    (startMonth<monthOfYear))
+                return true;
+
+        }
+
+        else if(item.getAccoutType().contains("D")){
+
+            long startDate = Long.parseLong(item.getStartDate());
+            long endDate = Long.parseLong(item.getEndDate());
+            long todaysDate = calendar.getTimeInMillis();
+            //set new calendar equal to start date of the account
+
+            Calendar newCal = Calendar.getInstance();
+            newCal.setTimeInMillis(startDate);
+
+
+            if((todaysDate - startDate) >= 1000*60*60*24 &&
+                    todaysDate<endDate &&
+                    Float.parseFloat(item.getDueAmt())>0 &&
+                    item.getAccountStatus().equalsIgnoreCase("open"))
+                return true;
+
+
+        }
+
+        return false;
     }
 }

@@ -39,11 +39,11 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="32dp"
             android:layout_marginTop="8dp"
-            android:id="@+id/frag_reports_profit_statement_btn"
-            fancy:fb_text="Profit Statement"
+            android:id="@+id/frag_reports_closed_accounts_reports_btn"
+            fancy:fb_text="Closed Accounts Reports"
             fancy:fb_radius="20dp"
             fancy:fb_focusColor="#5577bd"
-            fancy:fb_defaultColor="#2962ff"/>
+            fancy:fb_defaultColor="#c56000"/>
 
         <mehdi.sakout.fancybuttons.FancyButton
             android:layout_width="match_parent"
@@ -51,11 +51,12 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="32dp"
             android:layout_marginTop="8dp"
-            android:id="@+id/frag_reports_daily_report_btn"
-            fancy:fb_text="Today's Report"
+            android:id="@+id/frag_reports_profit_statement_btn"
+            fancy:fb_text="Profit Statement"
             fancy:fb_radius="20dp"
             fancy:fb_focusColor="#5577bd"
-            fancy:fb_defaultColor="#c56000"/>
+            fancy:fb_defaultColor="#2962ff"/>
+
 
 
 

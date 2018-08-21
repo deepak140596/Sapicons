@@ -30,11 +30,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.sapicons.deepak.tbd.Objects.AccountItem;
+import com.sapicons.deepak.tbd.Objects.CollectItem;
 import com.sapicons.deepak.tbd.Objects.CustomerItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import android.widget.EditText;
@@ -63,6 +65,8 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
     int isCollect = 0;
 
     ProgressDialog progressDialog;
+    ViewHolder holder;
+    CustomerItem customerItem;
 
     public ClubbedAccountsAdapter(@NonNull Context context, int resource, @NonNull List<CustomerItem> objects,int isCollect) {
         super(context, resource, objects);
@@ -81,13 +85,10 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        final ViewHolder holder;
-        CustomerItem item = getItem(position);
+
+        customerItem = getItem(position);
         if(convertView == null) {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.item_clubbed_accounts, parent, false);
-            //ImageView customerIV = convertView.findViewById(R.id.item_clubbed_account_customer_pic_iv);
-            //TextView customerNameTV = convertView.findViewById(R.id.item_clubbed_account_customer_name);
-            //linearLayout = convertView.findViewById(R.id.item_clubbed_acc_ll);
 
             holder = new ViewHolder();
             holder.custImage = convertView.findViewById(R.id.item_clubbed_account_customer_pic_iv);
@@ -95,7 +96,7 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
             holder.accLL = convertView.findViewById(R.id.item_clubbed_acc_ll);
 
             convertView.setTag(holder);
-            findAccountsOfCustomer(item,holder);
+            findAccountsOfCustomer(customerItem,holder);
 
 
         }else{
@@ -103,24 +104,27 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
         }
 
 
-        holder.custName.setText(item.getFirstName().toString() + " " + item.getLastName().toString());
-        if (item.getPhotoUrl().length() > 0)
-            Glide.with(getContext()).load(item.getPhotoUrl()).into(holder.custImage);
+        holder.custName.setText(customerItem.getFirstName().toString() + " " + customerItem.getLastName().toString());
+        if (customerItem.getPhotoUrl().length() > 0)
+            Glide.with(getContext()).load(customerItem.getPhotoUrl()).into(holder.custImage);
 
 
 
         return  convertView;
-        }
+    }
 
 
     public void findAccountsOfCustomer(CustomerItem item,final ViewHolder holder){
         List<AccountItem> accounts = new ArrayList<>();
 
-        accounts = getAccountsFromFirebase(item,accounts,holder);
+        getAccountsFromFirebase(item,accounts,holder);
 
     }
 
-    public List<AccountItem> getAccountsFromFirebase(CustomerItem item, final List<AccountItem> list,final ViewHolder holder){
+    public void getAccountsFromFirebase(CustomerItem item, final List<AccountItem> list,final ViewHolder holder){
+
+
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -130,7 +134,8 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
         //create a query to search for user's accounts
         Query getNoOfAcc = ref.whereEqualTo("firstName",item.getFirstName())
                 .whereEqualTo("lastName",item.getLastName())
-                .whereEqualTo("phoneNumber",item.getPhone());
+                .whereEqualTo("phoneNumber",item.getPhone())
+                .whereEqualTo("accountStatus","open");
 
         getNoOfAcc.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -142,6 +147,7 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
                                 AccountItem item = document.toObject(AccountItem.class);
+                                Log.d("CAA",item.getFirstName());
 
                                 list.add(item);
                             }
@@ -155,7 +161,7 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
                     }
                 });
 
-        return  list;
+
     }
 
     public void clubAccounts(List<AccountItem> list,ViewHolder holder){
@@ -206,6 +212,8 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
 
     }
 
+    // collect functionality
+
     public void setUpPopupWindow(final AccountItem item, final TextView dueAmtTv){
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Please Wait ...");
@@ -254,35 +262,12 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
 
 
         String newAmt = (Float.parseFloat(accountItem.getDueAmt()) - Float.parseFloat(amount))+"";
-        //accountItem.setDueAmt(newAmt);
+
+        if(accountItem.getAccoutType().contains("M"))
+            newAmt = accountItem.getDueAmt();
         dueAmtTv.setText(newAmt);
+        accountItem.setDueAmt(newAmt);
 
-        // set customer pic if pic is null
-        if(accountItem.getCustomerPicUrl().length()<10){
-            DocumentReference cusRefDOc = db.collection("users").document(user.getEmail())
-                    .collection("customers").document(accountItem.getPhoneNumber());
-
-            cusRefDOc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Log.d("TAG", "DocumentSnapshot data: " + document.getData());
-                            AccountItem i = document.toObject(AccountItem.class);
-                            accountItem.setCustomerPicUrl(i.getCustomerPicUrl());
-
-                        } else {
-                            Log.d("TAG", "No such document");
-                        }
-                    } else {
-                        Log.d("TAG", "get failed with ", task.getException());
-                    }
-                }
-            });
-
-        }
 
         //update the new info to db
         DocumentReference accRef = db.collection("users").document(user.getEmail())
@@ -303,6 +288,76 @@ public class ClubbedAccountsAdapter  extends ArrayAdapter<CustomerItem> {
         });
 
 
+        //close account id dueAmt = zero
+        if(Float.parseFloat(newAmt)  < 1.0){
+            Toast.makeText(context, "Account is Closed!", Toast.LENGTH_SHORT).show();
+            accountItem.setAccountStatus("closed");
 
+            accRef.update("accountStatus","closed")
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //Toast.makeText(context, "Amount Updated!", Toast.LENGTH_SHORT).show();
+                            //progressDialog.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("TAG","error updating account status: "+e);
+                }
+            });
+        }
+
+
+        addCollectionToFirestore(accountItem,amount);
+
+    }
+
+    private void addCollectionToFirestore(AccountItem item, String collectedAmount){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        CollectionReference collectRef = db.collection("users").document(user.getEmail())
+                .collection("collections");
+
+        Date date = new Date();
+        String timestamp = date.getTime()+"";
+        String profit = "0";
+
+        // profit for D account is zero
+        // profit for M account is (loanAmt * interestPct/100)
+        if(item.getAccoutType().contains("M")){
+
+            profit= (Float.parseFloat(item.getLoanAmt().trim())*Float.parseFloat(item.getInterestPct().trim())/100)+"";
+        }
+
+        CollectItem collectItem = new CollectItem(item.getAccountNumber(),timestamp,collectedAmount,profit,item.getAccoutType());
+
+
+
+        collectRef.add(collectItem)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("TAG","Failed to write collection amount. "+e);
+            }
+        });
+
+
+
+        //reset the user interface
+        resetUI();
+    }
+
+    private void resetUI(){
+
+        custItem = new ArrayList<>();
+        accItem = new ArrayList<>();
+        findAccountsOfCustomer(customerItem,holder);
     }
 }

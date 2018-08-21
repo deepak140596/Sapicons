@@ -10,9 +10,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_margin="16dp"
+        android:layout_above="@id/profit_rev_ll">
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:id="@+id/frag_dash_due_today_btn"
+            android:layout_marginRight="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            fancy:fb_text="Due Today"
+            fancy:fb_radius="20dp"
+            fancy:fb_focusColor="#5577bd"
+            fancy:fb_defaultColor="#2e7d32"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginLeft="48dp"
         android:layout_marginRight="48dp"
         android:layout_marginBottom="16dp"
+        android:id="@+id/profit_rev_ll"
         android:layout_above="@id/fd_ll">
 
         <LinearLayout

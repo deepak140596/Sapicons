@@ -5,9 +5,7 @@ import android.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.sapicons.deepak.tbd.Fragments.AccountsDisplayFragment;
 import com.sapicons.deepak.tbd.Fragments.ClubAccountsDisplayFragment;
-import com.sapicons.deepak.tbd.Fragments.CollectActivityFragment;
 
 public class CollectActivity extends AppCompatActivity {
 

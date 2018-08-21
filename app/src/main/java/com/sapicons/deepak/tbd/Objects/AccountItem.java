@@ -12,10 +12,11 @@ import java.util.Comparator;
 public class AccountItem implements Serializable{
     String accountNumber, startDate,accoutType,firstName, lastName, phoneNumber, amount,interestPct;
     String actualAmt,dueAmt,accountStatus,endDate,customerPicUrl;
+    String loanAmt,actualLoanAmt;
     public AccountItem(){}
     public AccountItem(String accountNumber, String startDate,String endDate, String accoutType, String firstName, String lastName,
                        String phoneNumber, String amount,String actualAmt,String dueAmt, String interestPct,String accountStatus,
-                       String customerPicUrl){
+                       String customerPicUrl,String loanAmt, String actualLoanAmt){
         this.accountNumber = accountNumber;
         this.startDate = startDate;
         this.accoutType = accoutType;
@@ -29,7 +30,24 @@ public class AccountItem implements Serializable{
         this.dueAmt = dueAmt;
         this.accountStatus= accountStatus;
         this.customerPicUrl=customerPicUrl;
+        this.loanAmt= loanAmt;
+        this.actualLoanAmt = actualLoanAmt;
+    }
 
+    public String getLoanAmt() {
+        return loanAmt;
+    }
+
+    public void setLoanAmt(String loanAmt) {
+        this.loanAmt = loanAmt;
+    }
+
+    public String getActualLoanAmt() {
+        return actualLoanAmt;
+    }
+
+    public void setActualLoanAmt(String actualLoanAmt) {
+        this.actualLoanAmt = actualLoanAmt;
     }
 
     public String getCustomerPicUrl() {
@@ -160,6 +178,17 @@ public class AccountItem implements Serializable{
             // descending order
             return amt2 - amt1;
 
+        }
+    };
+
+    public static Comparator<AccountItem> DateClosedComparator = new Comparator<AccountItem>() {
+        @Override
+        public int compare(AccountItem accountItem, AccountItem t1) {
+            long d1 = Long.parseLong(accountItem.getEndDate());
+            long d2 = Long.parseLong(t1.getEndDate());
+
+            // from current date to previous date
+            return (int)(d1-d2);
         }
     };
 }

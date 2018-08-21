@@ -326,11 +326,18 @@ public class AddAccountActivity extends AppCompatActivity implements AdapterView
         String accoutStatus = "open";
         String customerPicUrl = selectedCustomer.getPhotoUrl();
 
+        String loanAmt = dueAmt;
+        String actualLoanAmt;
+        if(accountType.contains("D")){
+            actualLoanAmt = (Float.parseFloat(loanAmt)- (0.1* Float.parseFloat(loanAmt)))+"";
+        }else
+            actualLoanAmt = dueAmt;
+
         final DocumentReference newAccRef = db.collection("users").document(user.getEmail())
                 .collection("accounts").document(accNumber);
 
         AccountItem accountItem = new AccountItem(accNumber,startDate,endDate,accountType,firstName,
-                lastName,phoneNumber,amount,actualAmt,dueAmt,interestPct,accoutStatus,customerPicUrl);
+                lastName,phoneNumber,amount,actualAmt,dueAmt,interestPct,accoutStatus,customerPicUrl,loanAmt,actualLoanAmt);
 
         newAccRef.set(accountItem)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
